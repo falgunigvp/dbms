@@ -1,0 +1,178 @@
+=====assignment 1======
+
+create table s(
+	sno char(3) PRIMARY KEY,
+        sname varchar(50),
+	s_status int,
+        s_city varchar(20)
+
+);
+create table p(
+	pno char(3) PRIMARY KEY,
+        pname varchar(50),
+	color varchar(10),
+	weight float(5.0),
+        p_city varchar(25)
+
+);
+create table sp(
+	sno char(3),
+        pno char(3), 
+	qty int,
+	PRIMARY KEY(sno,pno)
+);
+
+===========assignment 2 =========================
+
+SELECT * FROM `p` WHERE p_city='london';	(london)
+SELECT pname,pno,color FROM p where color='red';        (red)
+SELECT pname,waight FROM p WHERE waight= (SELECT MAX(waight)FROM p);	(max waight)
+SELECT sname,s_city,qty FROM s,sp where qty>200;	(more than 200)
+
+SELECT pname,waight FROM p WHERE waight=(SELECT MAX(waight)FROM p);
+SELECT max(waight),pname FROM p;    
+
+SELECT pno,pname,waight FROM p WHERE waight < (SELECT MAX(waight) FROM p) ORDER BY waight DESC LIMIT 2;
+
+
+
+
+
+SELECT * FROM s,p WHERE s_city='london' || p_city='london' ORDER BY p_city;
+SELECT * FROM p WHERE p_city='london' ORDER BY p_city;
+
+===========assignment 2 =========================
+
+SELECT * 
+	FROM `p` 
+   	WHERE p_city='london';
+
+SELECT pname,pno,color 
+	FROM p 
+    	where color='red';
+
+SELECT pname,waight 
+	FROM p 
+   	WHERE waight= (SELECT MAX(waight)FROM p);
+
+SELECT pno,pname,waight 
+	FROM p 
+    	WHERE waight < (SELECT MAX(waight) FROM p) ORDER BY waight DESC LIMIT 1;
+
+SELECT DISTINCT s.sname,s.s_city 
+	FROM s,sp 
+    	where sp.sno= s.sno 
+    	and sp.qty>200;
+
+
+
+
+==========assignment 3==============
+
+1  SELECT s.sno,sp.qty,p.waight FROM s,p,sp WHERE sp.sno= s.sno and sp.pno=p.pno and waight=(SELECT MAX(waight) FROM p);
+
+2  SELECT s.sname,sp.qty,p.color from s,sp,p WHERE sp.sno= s.sno and sp.pno=p.pno AND p.color='red';
+
+3  SELECT DISTINCT s.sname,p.p_city,sp.qty,s.s_satatus from s,sp,p WHERE sp.sno= s.sno and sp.pno=p.pno AND s.s_satatus<30 ORDER BY s_satatus;
+
+4  SELECT sp.sno,sum(sp.qty) from sp 
+GROUP BY sno;
+
+5  SELECT sp.pno,sum(sp.qty) from sp 
+GROUP BY pno;
+
+===============assignment 4===============
+
+1   SELECT DISTINCT p.pname,sum(sp.qty) from p,sp WHERE p.pno=sp.pno GROUP BY p.pname;
+
+
+2 SELECT s.sno, s.sname,sum(sp.qty) from s,sp where s.sno < "s4" and s.sno = sp.sno GROUP by sno;
+
+3 SELECT s.sname, s.sno,s.s_satatus,SUM(sp.qty) from s,sp WHERE s.sno=sp.sno AND s.s_satatus=20 GROUP BY sno;
+
+=================assignment 5============================
+CREATE TABLE emp(
+	emp_id int PRIMARY KEY,
+    emp_name varchar(35),
+    emp_dept_id int,
+    emp_boss_id int,
+    emp_salary bigint
+);
+
+ALTER TABLE emp ADD CONSTRAINT fk_dept_id FOREIGN KEY (emp_dept_id) REFERENCES emp(emp_id);
+
+INSERT INTO `emp`(`emp_id`, `emp_name`, `emp_dept_id`, `emp_boss_id`, `emp_salary`) VALUES 
+	('101','Nikhil','1','401','200000'),
+	('102','Satish','1','101','210000'),
+    ('103','Vrushali','1','101','175000'),
+    ('201','Archana','2','401','200000'),
+    ('202','Tanvi','2','201','135000'),
+    ('203','Dharti','2','201','175000'),
+    ('301','Hemali','3','401','235000'),
+    ('302','Vishal','3','301','180000'),
+    ('303','Nafis','3','302','199000'),
+    ('401','Registar','4','401','500000'),
+    ('402','Bipin','4','401','490000'),
+    ('403','Narendra','4','402','1000000'),
+    ('404','Mohan','4','402','800000');
+
+==========assignment 6==============
+
+1	SELECT emp.emp_name as EmployeName,dept.dept_name as DepartmentName,bossemp.emp_name as Boss,bossdept.dept_name as BossDpartment
+		from dept,emp,emp as bossemp,dept as bossdept 
+   		WHERE emp.emp_boss_id=bossemp.emp_id
+    		and emp.emp_dept_id=dept.dept_id
+    		and bossemp.emp_dept_id=bossdept.dept_id;
+
+
+2	SELECT emp.emp_name as EmployeName,dept.dept_name as DepartmentName,bossemp.emp_name as Boss,bossdept.dept_name as BossDpartment,emp.emp_salary
+		from dept,emp,emp as bossemp,dept as bossdept 
+    		WHERE emp.emp_boss_id=bossemp.emp_id
+    		and emp.emp_dept_id=dept.dept_id
+    		and bossemp.emp_dept_id=bossdept.dept_id
+    		and emp.emp_salary>bossemp.emp_salary;
+
+============assignment 7=======================
+
+3	SELECT dept.dept_name, MAX(emp.emp_salary) AS max_salary
+		FROM dept,emp where dept.dept_id = emp.emp_dept_id
+		GROUP BY dept.dept_name;
+
+
+4	SELECT dept.dept_name, COUNT(emp.emp_name) AS total_employe
+		FROM dept,emp where dept.dept_id = emp.emp_dept_id
+		GROUP BY dept.dept_name;
+
+============assignment 8=======================
+
+CREATE TABLE account
+(
+    acc_no INT,
+    amount decimal(10,2)
+)
+
+============assignment 9=======================
+CREATE TRIGGER ins_sum 
+	BEFORE INSERT ON account
+	FOR EACH ROW SET @sum=@sum+new.amount;
+
+
+SET @sum=0;
+INSERT INTO account VALUES(137,50.00),(141,2000.00),(97,-100.00);
+SELECT @sum AS 'Total amount inserted';
+
+============assignment 10=======================
+
+
+CREATE TRIGGER `ins_transaction` BEFORE INSERT ON `account`
+ FOR EACH ROW set 
+@deposite=@deposite+if(new.amount >0,new.amount,0),
+@withdraw=@withdraw+if(new.amount < 0,-new.amount,0);
+
+set @sum=0;
+set @deposite=0;
+set @withdraw=0;
+
+insert into account values(1,1000),(2,2000.00),(3,-500.00),(4,-500.00);
+select @deposite as "Deposite" ,@withdraw as "Withdraw" , @sum as "Total";
+
